@@ -109,88 +109,89 @@ export default function PostDetailPage() {
     month: "long",
     day: "numeric",
   });
-  const wordCount = post.content?.split(/\s+/).length || 0;
-  const readMinutes = Math.max(1, Math.ceil(wordCount / 250));
+ const plainText = (post.content || "").replace(/<[^>]+>/g, " ").trim();
+ const wordCount = plainText.split(/\s+/).filter(Boolean).length || 0;
+ const readMinutes = Math.max(1, Math.ceil(wordCount / 250));
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 page-enter">
-      {/* BACK BUTTON */}
-      <Link
-        to="/"
-        className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-800 mb-6 transition-colors"
-      >
-        <ArrowLeft size={16} /> Về trang chủ
-      </Link>
+ <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 page-enter">
+ {/* BACK BUTTON */}
+ <Link
+ to="/"
+ className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-800 dark:hover:text-ink-100 mb-6 transition-colors"
+ >
+ <ArrowLeft size={16} /> Về trang chủ
+ </Link>
 
-      {/* POST HEADER */}
-      <article>
-        {/* Cover Image */}
-        {post.coverImage && (
-          <div className="mb-6 -mx-4 sm:mx-0 sm:rounded-xl overflow-hidden">
-            <img
-              src={
-                post.coverImage.startsWith("/uploads")
-                  ? `${(import.meta.env.VITE_API_URL || "http://localhost:5000").replace("/api", "")}${post.coverImage}`
-                  : post.coverImage
-              }
-              alt={post.title}
-              className="w-full max-h-96 object-cover"
-            />
-          </div>
-        )}
+ {/* POST HEADER */}
+ <article className="bg-white dark:bg-ink-900 rounded-xl p-4 sm:p-6
+ border border-ink-100 dark:border-ink-800">
+ {/* Cover Image */}
+ {post.coverImage && (
+ <div className="mb-6 -mx-4 sm:mx-0 sm:rounded-xl overflow-hidden">
+ <img
+ src={
+ post.coverImage.startsWith("/uploads")
+ ? `${(import.meta.env.VITE_API_URL || "http://localhost:5000").replace("/api", "")}${post.coverImage}`
+ : post.coverImage
+ }
+ alt={post.title}
+ className="w-full max-h-96 object-cover"
+ />
+ </div>
+ )}
 
-        {/* Category */}
-        {post.category && (
-          <span className="badge mb-4 inline-block">{post.category}</span>
-        )}
+ {/* Category */}
+ {post.category && (
+ <span className="badge mb-4 inline-block">{post.category}</span>
+ )}
 
-        {/* Title */}
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-ink-950 leading-tight mb-4">
-          {post.title}
-        </h1>
+ {/* Title */}
+ <h1 className="font-display text-3xl md:text-4xl font-bold text-ink-950 dark:text-ink-50 leading-tight mb-4">
+ {post.title}
+ </h1>
 
-        {/* Meta info */}
-        <div className="flex flex-wrap items-center gap-4 text-sm text-ink-500 font-body mb-8 pb-6 border-b border-ink-200">
-          <span className="flex items-center gap-1.5">
-            <User size={14} />
-            <strong className="text-ink-700">
-              {post.author?.username || post.author || "Ẩn danh"}
-            </strong>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Calendar size={14} />
-            {formattedDate}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock size={14} />
-            {readMinutes} phút đọc
-          </span>
-        </div>
+ {/* Meta info */}
+ <div className="flex flex-wrap items-center gap-4 text-sm text-ink-500 dark:text-ink-400 font-body mb-8 pb-6 border-b border-ink-200 dark:border-ink-800">
+ <span className="flex items-center gap-1.5">
+ <User size={14} />
+ <strong className="text-ink-700 dark:text-ink-200">
+ {post.author?.username || post.author || "Ẩn danh"}
+ </strong>
+ </span>
+ <span className="flex items-center gap-1.5">
+ <Calendar size={14} />
+ {formattedDate}
+ </span>
+ <span className="flex items-center gap-1.5">
+ <Clock size={14} />
+ {readMinutes} phút đọc
+ </span>
+ </div>
 
  {/* CONTENT */}
  <div
- className="prose prose-ink max-w-none font-body leading-8 text-ink-800
- text-base whitespace-pre-line"
-        >
-          {post.content}
-        </div>
+ className="prose prose-ink dark:prose-invert max-w-none font-body leading-8
+ text-ink-800 dark:text-ink-200 text-base"
+ dangerouslySetInnerHTML={{ __html: post.content }}
+ />
 
-        {/* TAGS */}
-        {post.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-8">
-            {post.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2.5 py-1 bg-ink-100 text-ink-600 rounded-md text-xs font-mono"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
+ {/* TAGS */}
+ {post.tags?.length > 0 && (
+ <div className="flex flex-wrap gap-2 mt-8">
+ {post.tags.map((tag) => (
+ <span
+ key={tag}
+ className="px-2.5 py-1 bg-ink-100 dark:bg-ink-800 text-ink-600 dark:text-ink-300 rounded-md text-xs font-mono"
+ >
+ #{tag}
+ </span>
+ ))}
+ </div>
+ )}
 
-        {/* ACTION BAR */}
-        <div className="flex items-center justify-between mt-10 pt-6 border-t border-ink-200">
+ {/* ACTION BAR */}
+ <div className="flex items-center justify-between mt-10 pt-6 border-t border-ink-200 dark:border-ink-800">
           {/* Like button */}
           <button
             onClick={handleLike}

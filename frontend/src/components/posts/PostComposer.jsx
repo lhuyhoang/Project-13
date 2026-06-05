@@ -18,6 +18,7 @@ import { X, ImagePlus, Send, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../../stores/useAuthStore";
 import Avatar from "../common/Avatar";
+import RichTextEditor from "../common/RichTextEditor";
 import postService from "../../services/postService";
 import { getErrorMessage } from "../../utils/helpers";
 
@@ -51,33 +52,23 @@ export default function PostComposer({ isOpen, onClose, onCreated }) {
   const [coverPreview, setCoverPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const coverInputRef = useRef(null);
-  const textareaRef = useRef(null);
+ const coverInputRef = useRef(null);
 
-  // Reset form khi đóng
-  useEffect(() => {
-    if (!isOpen) {
-      setTitle("");
-      setContent("");
-      setCategory("");
-      setTags("");
-      setCoverFile(null);
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-      setCoverPreview(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+ // Reset form khi đóng
+ useEffect(() => {
+ if (!isOpen) {
+ setTitle("");
+ setContent("");
+ setCategory("");
+ setTags("");
+ setCoverFile(null);
+ if (coverPreview) URL.revokeObjectURL(coverPreview);
+ setCoverPreview(null);
+ }
+ // eslint-disable-next-line react-hooks/exhaustive-deps
+ }, [isOpen]);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    const ta = textareaRef.current;
-    if (ta) {
-      ta.style.height = "auto";
-      ta.style.height = ta.scrollHeight + "px";
-    }
-  }, [content]);
-
-  // Đóng bằng phím Escape
+ // Đóng bằng phím Escape
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e) => {
@@ -112,37 +103,38 @@ export default function PostComposer({ isOpen, onClose, onCreated }) {
     if (coverInputRef.current) coverInputRef.current.value = "";
   };
 
-  const canSubmit =
-    title.trim().length >= TITLE_MIN &&
-    content.trim().length >= CONTENT_MIN &&
-    category &&
-    !submitting;
+ const plainContentLen = content.replace(/<[^>]+>/g, "").trim().length;
+ const canSubmit =
+ title.trim().length >= TITLE_MIN &&
+ plainContentLen >= CONTENT_MIN &&
+ category &&
+ !submitting;
 
-  const handleSubmit = async () => {
-    if (!canSubmit) {
-      if (title.trim().length < TITLE_MIN)
-        toast.error(`Tiêu đề phải có ít nhất ${TITLE_MIN} ký tự`);
-      else if (content.trim().length < CONTENT_MIN)
-        toast.error(`Nội dung phải có ít nhất ${CONTENT_MIN} ký tự`);
-      else if (!category) toast.error("Vui lòng chọn danh mục");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      // Bước 1: Tạo bài viết
-      const payload = {
-        title: title.trim(),
-        content: content.trim(),
-        category,
-        tags: tags
-          ? tags
-              .split(",")
-              .map((t) => t.trim().replace(/^#/, ""))
-              .filter(Boolean)
-          : [],
-      };
-      const res = await postService.create(payload);
-      const newPost = res.post || res;
+ const handleSubmit = async () => {
+ if (!canSubmit) {
+ if (title.trim().length < TITLE_MIN)
+ toast.error(`Tiêu đề phải có ít nhất ${TITLE_MIN} ký tự`);
+ else if (plainContentLen < CONTENT_MIN)
+ toast.error(`Nội dung phải có ít nhất ${CONTENT_MIN} ký tự`);
+ else if (!category) toast.error("Vui lòng chọn danh mục");
+ return;
+ }
+ setSubmitting(true);
+ try {
+ // Bước 1: Tạo bài viết
+ const payload = {
+ title: title.trim(),
+ content: content.trim(),
+ category,
+ tags: tags
+ ? tags
+ .split(",")
+ .map((t) => t.trim().replace(/^#/, ""))
+ .filter(Boolean)
+ : [],
+ };
+ const res = await postService.create(payload);
+ const newPost = res.post || res;
 
       // Bước 2: Upload ảnh bìa nếu có
       if (coverFile && newPost?._id) {
@@ -234,26 +226,20 @@ export default function PostComposer({ isOpen, onClose, onCreated }) {
             </p>
           </div>
 
-          {/* Ô NỘI DUNG */}
-          <div>
-            <label className="block text-xs font-medium text-ink-500 mb-1 font-body">
-              Nội dung <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={`${user?.username || "Bạn"} ơi, bạn đang nghĩ gì thế?`}
-              rows={6}
-              className="w-full px-3 py-2.5 border border-ink-200 rounded-md bg-white text-ink-900
- placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-ink-400
- focus:border-transparent transition-all font-body text-base leading-relaxed resize-none"
-              style={{ minHeight: "140px" }}
-            />
-            <p className="mt-1 text-xs text-ink-400 font-body text-right">
-              {content.length} ký tự (tối thiểu {CONTENT_MIN})
-            </p>
-          </div>
+ {/* Ô NỘI DUNG */}
+ <div>
+ <label className="block text-xs font-medium text-ink-500 mb-1 font-body">
+ Nội dung <span className="text-red-500">*</span>
+ </label>
+ <RichTextEditor
+ value={content}
+ onChange={setContent}
+ placeholder={`${user?.username || "Bạn"} ơi, bạn đang nghĩ gì thế?`}
+ />
+ <p className="mt-1 text-xs text-ink-400 font-body text-right">
+ {content.replace(/<[^>]+>/g, "").length} ký tự (tối thiểu {CONTENT_MIN})
+ </p>
+ </div>
         </div>
 
         {/* ── HÀNG TUỲ CHỌN (Category + Tags + Ảnh bìa) ─────────── */}

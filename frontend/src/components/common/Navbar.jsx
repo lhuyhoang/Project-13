@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { PenSquare, LogOut, User, Menu, X, BookOpen } from "lucide-react";
+import {
+ PenSquare,
+ LogOut,
+ User,
+ Menu,
+ X,
+ BookOpen,
+ Shield,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import useAuthStore from "../../stores/useAuthStore";
 import Avatar from "./Avatar";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -43,6 +52,7 @@ export default function Navbar() {
 
           {/* DESKTOP NAV */}
           <div className="hidden md:flex items-center gap-6">
+            <ThemeToggle />
             <Link
               to="/"
               className={`text-sm font-body transition-colors hover:text-white ${
@@ -61,6 +71,19 @@ export default function Navbar() {
                   <PenSquare size={15} />
                   Viết bài
                 </Link>
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    className={`flex items-center gap-1.5 text-sm font-body transition-colors hover:text-white ${
+                      location.pathname.startsWith("/admin")
+                        ? "text-amber-400"
+                        : "text-ink-300"
+                    }`}
+                  >
+                    <Shield size={15} />
+                    Admin
+                  </Link>
+                )}
                 <Link
                   to="/profile"
                   className={`flex items-center gap-2 text-sm font-body transition-colors hover:text-white ${
@@ -111,6 +134,9 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       {mobileOpen && (
         <div className="md:hidden bg-ink-900 border-t border-ink-800 px-4 py-4 space-y-3 animate-fade-in">
+          <div className="flex justify-end pb-2 border-b border-ink-800">
+            <ThemeToggle />
+          </div>
           <MobileNavLink
             to="/"
             label="Trang chủ"
@@ -123,6 +149,13 @@ export default function Navbar() {
                 label="✏️ Viết bài mới"
                 onClick={() => setMobileOpen(false)}
               />
+              {user?.role === "admin" && (
+                <MobileNavLink
+                  to="/admin"
+                  label="🛡️ Admin Panel"
+                  onClick={() => setMobileOpen(false)}
+                />
+              )}
               <MobileNavLink
                 to="/profile"
                 label={`👤 ${user?.username}`}

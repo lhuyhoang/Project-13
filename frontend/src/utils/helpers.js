@@ -59,8 +59,21 @@ export const getInitial = (name) => {
  * @returns {string}
  */
 export const getErrorMessage = (
-  error,
-  fallback = "Có lỗi xảy ra. Vui lòng thử lại.",
+ error,
+ fallback = "Có lỗi xảy ra. Vui lòng thử lại.",
 ) => {
-  return error?.response?.data?.message || error?.message || fallback;
+ return error?.response?.data?.message || error?.message || fallback;
+};
+
+/**
+ * Convert đường dẫn avatar tương đối (/uploads/avatars/xxx.jpg)
+ * thành URL đầy đủ để hiển thị <img>.
+ * @param {string} path
+ * @returns {string}
+ */
+export const getAvatarUrl = (path) => {
+ if (!path) return "";
+ if (path.startsWith("http") || path.startsWith("data:")) return path;
+ const base = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api$/, "");
+ return `${base}${path}`;
 };

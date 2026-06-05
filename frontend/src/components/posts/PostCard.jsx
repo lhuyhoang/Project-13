@@ -18,67 +18,68 @@ export default function PostCard({ post }) {
   const wordCount = post.content?.split(/\s+/).length || 0;
   const readMinutes = Math.max(1, Math.ceil(wordCount / 250));
 
-  return (
-    <article className="card p-5 flex flex-col gap-3 group animate-slide-up">
-      {/* Header: Category + Date */}
-      <div className="flex items-center justify-between">
-        {post.category ? (
-          <span className="badge">{post.category}</span>
-        ) : (
-          <span className="badge bg-ink-100 text-ink-500 border-ink-200">
-            Chung
-          </span>
-        )}
-        <time
-          className="text-xs text-ink-400 font-body"
-          dateTime={post.createdAt}
-        >
-          {formattedDate}
-        </time>
-      </div>
+ return (
+ <article className="card p-5 flex flex-col gap-3 group animate-slide-up
+ bg-white dark:bg-ink-900
+ border border-ink-100 dark:border-ink-800">
+ {/* Header: Category + Date */}
+ <div className="flex items-center justify-between">
+ {post.category ? (
+ <span className="badge">{post.category}</span>
+ ) : (
+ <span className="badge bg-ink-100 text-ink-500 border-ink-200 dark:bg-ink-800 dark:text-ink-400">
+ Chung
+ </span>
+ )}
+ <time
+ className="text-xs text-ink-400 font-body"
+ dateTime={post.createdAt}
+ >
+ {formattedDate}
+ </time>
+ </div>
 
-      {/* Title */}
-      <Link to={`/posts/${post._id}`}>
-        <h2
-          className="font-display text-xl font-semibold text-ink-900 leading-snug
-                       group-hover:text-amber-600 transition-colors line-clamp-2"
-        >
-          {post.title}
-        </h2>
-      </Link>
+ {/* Title */}
+ <Link to={`/posts/${post._id}`}>
+ <h2
+ className="font-display text-xl font-semibold text-ink-900 dark:text-ink-50
+ leading-snug group-hover:text-amber-600 transition-colors line-clamp-2"
+ >
+ {post.title}
+ </h2>
+ </Link>
 
-      {/* Preview content */}
-      <p className="text-sm text-ink-500 font-body leading-relaxed line-clamp-3 flex-1">
-        {previewContent || "Không có nội dung xem trước."}
-      </p>
+ {/* Preview content */}
+ <p className="text-sm text-ink-500 dark:text-ink-300 font-body leading-relaxed line-clamp-3 flex-1">
+ {previewContent || "Không có nội dung xem trước."}
+ </p>
 
-      {/* Footer: Author + Stats */}
-      <div className="flex items-center justify-between pt-2 border-t border-ink-100">
+ {/* Footer: Author + Stats */}
+ <div className="flex items-center justify-between pt-2 border-t border-ink-100 dark:border-ink-800">
  {/* Author */}
- <div className="flex items-center gap-1.5 text-xs text-ink-500">
+ <div className="flex items-center gap-1.5 text-xs text-ink-500 dark:text-ink-400">
  <User size={13} />
- <span className="font-medium text-ink-700">
+ <span className="font-medium text-ink-700 dark:text-ink-200">
  {post.author?.username || post.author || "Ẩn danh"}
  </span>
  </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-xs text-ink-400">
-            <Clock size={12} />
-            {readMinutes} phút đọc
-          </span>
-          <span className="flex items-center gap-1 text-xs text-ink-400">
-            <Heart size={12} className="text-red-400" />
-            {/* Backend trả `likeCount` (virtual) hoặc `likesCount` (toggleLike). Fallback cả 2. */}
-            {post.likeCount ?? post.likesCount ?? post.likes?.length ?? 0}
-          </span>
-          <span className="flex items-center gap-1 text-xs text-ink-400">
-            <MessageCircle size={12} className="text-blue-400" />
-            {post.commentsCount ?? 0}
-          </span>
-        </div>
-      </div>
-    </article>
-  );
+ {/* Stats */}
+ <div className="flex items-center gap-3">
+ <span className="flex items-center gap-1 text-xs text-ink-400">
+ <Clock size={12} />
+ {readMinutes} phút đọc
+ </span>
+ <span className="flex items-center gap-1 text-xs text-ink-400">
+ <Heart size={12} className="text-red-400" />
+ {post.likeCount ?? post.likesCount ?? post.likes?.length ?? 0}
+ </span>
+ <span className="flex items-center gap-1 text-xs text-ink-400">
+ <MessageCircle size={12} className="text-blue-400" />
+ {post.commentsCount ?? 0}
+ </span>
+ </div>
+ </div>
+ </article>
+ );
 }

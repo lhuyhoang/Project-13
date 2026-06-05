@@ -12,6 +12,7 @@ const useAuthStore = create(
       error: null,
 
       isAuthenticated: () => !!get().token,
+ isAdmin: () => get().user?.role === "admin",
 
       login: async (credentials) => {
         set({ isLoading: true, error: null });

@@ -89,11 +89,11 @@ export default function CommentSection({ postId, postAuthorId }) {
   };
 
   return (
-    <section className="mt-10 pt-8 border-t border-ink-200">
-      <h3 className="font-display text-2xl font-semibold text-ink-900 mb-6 flex items-center gap-2">
-        <MessageSquare size={22} className="text-amber-500" />
-        Bình luận ({comments.length})
-      </h3>
+ <section className="mt-10 pt-8 border-t border-ink-200 dark:border-ink-800">
+ <h3 className="font-display text-2xl font-semibold text-ink-900 dark:text-ink-50 mb-6 flex items-center gap-2">
+ <MessageSquare size={22} className="text-amber-500" />
+ Bình luận ({comments.length})
+ </h3>
 
       {/*  COMMENT FORM */}
       {user ? (
@@ -132,7 +132,7 @@ export default function CommentSection({ postId, postAuthorId }) {
           </div>
         </form>
       ) : (
-        <div className="mb-8 p-4 bg-ink-100 rounded-lg text-sm text-ink-600 text-center">
+        <div className="mb-8 p-4 bg-ink-100 dark:bg-ink-800 rounded-lg text-sm text-ink-600 dark:text-ink-300 text-center">
           <a
             href="/login"
             className="text-amber-600 font-medium hover:underline"
@@ -158,9 +158,9 @@ export default function CommentSection({ postId, postAuthorId }) {
           ))}
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-center text-ink-400 py-8 font-body">
-          Chưa có bình luận nào. Hãy là người đầu tiên! 💬
-        </p>
+ <p className="text-center text-ink-400 dark:text-ink-500 py-8 font-body">
+ Chưa có bình luận nào. Hãy là người đầu tiên! 💬
+ </p>
       ) : (
         <ul className="space-y-5">
           {comments.map((comment) => (
@@ -174,33 +174,33 @@ export default function CommentSection({ postId, postAuthorId }) {
               />
 
               <div className="flex-1">
-                {/* Author + Date */}
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-ink-800">
-                      {comment.author?.username || "Người dùng"}
-                    </span>
-                    <time className="text-xs text-ink-400">
-                      {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
-                    </time>
-                  </div>
+ {/* Author + Date */}
+ <div className="flex items-center justify-between mb-1">
+ <div className="flex items-center gap-2">
+ <span className="text-sm font-semibold text-ink-800 dark:text-ink-100">
+ {comment.author?.username || "Người dùng"}
+ </span>
+ <time className="text-xs text-ink-400">
+ {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
+ </time>
+ </div>
 
-                  {/* Nút xóa (chỉ hiện nếu có quyền) */}
-                  {canDelete(comment) && (
-                    <button
-                      onClick={() => handleDelete(comment._id)}
-                      className="text-ink-300 hover:text-red-500 transition-colors p-1 rounded"
-                      title="Xóa bình luận"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
-                </div>
+ {/* Nút xóa (chỉ hiện nếu có quyền) */}
+ {canDelete(comment) && (
+ <button
+ onClick={() => handleDelete(comment._id)}
+ className="text-ink-300 dark:text-ink-600 hover:text-red-500 transition-colors p-1 rounded"
+ title="Xóa bình luận"
+ >
+ <Trash2 size={14} />
+ </button>
+ )}
+ </div>
 
-                {/* Content */}
-                <p className="text-sm text-ink-700 font-body leading-relaxed whitespace-pre-line">
-                  {comment.content}
-                </p>
+ {/* Content */}
+ <p className="text-sm text-ink-700 dark:text-ink-300 font-body leading-relaxed whitespace-pre-line">
+ {comment.content}
+ </p>
               </div>
             </li>
           ))}

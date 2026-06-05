@@ -1,7 +1,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState, useEffect } from "react";
 import { LoadingSpinner } from "../common/LoadingSpinner";
+import RichTextEditor from "../common/RichTextEditor";
 
 // ── ZOD SCHEMA ───────────────────────────────────────────────
 const postSchema = z.object({
@@ -29,42 +31,48 @@ const CATEGORIES = [
 ];
 
 export default function PostForm({
-  defaultValues = {},
-  onSubmit,
-  isLoading = false,
-  submitLabel = "Đăng bài",
+ defaultValues = {},
+ onSubmit,
+ isLoading = false,
+ submitLabel = "Đăng bài",
 }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm({
-    resolver: zodResolver(postSchema),
-    defaultValues: {
-      title: defaultValues.title || "",
-      content: defaultValues.content || "",
-      category: defaultValues.category || "",
-      tags: Array.isArray(defaultValues.tags)
-        ? defaultValues.tags.join(", ")
-        : defaultValues.tags || "",
-    },
-  });
+ const {
+ register,
+ handleSubmit,
+ formState: { errors },
+ setValue,
+ watch,
+ } = useForm({
+ resolver: zodResolver(postSchema),
+ defaultValues: {
+ title: defaultValues.title || "",
+ content: defaultValues.content || "",
+ category: defaultValues.category || "",
+ tags: Array.isArray(defaultValues.tags)
+ ? defaultValues.tags.join(", ")
+ : defaultValues.tags || "",
+ },
+ });
 
-  // Đếm ký tự content để hiển thị cho user
-  const contentValue = watch("content");
-  const handleFormSubmit = (data) => {
-    const payload = {
-      ...data,
-      tags: data.tags
-        ? data.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-    };
-    onSubmit(payload);
-  };
+ const [content, setContent] = useState(defaultValues.content || "");
+
+ useEffect(() => {
+ setValue("content", content, { shouldValidate: true, shouldDirty: true });
+ }, [content, setValue]);
+
+ // Đếm ký tự content (đã strip HTML) để hiển thị cho user
+ const handleFormSubmit = (data) => {
+ const payload = {
+ ...data,
+ tags: data.tags
+ ? data.tags
+ .split(",")
+ .map((t) => t.trim())
+ .filter(Boolean)
+ : [],
+ };
+ onSubmit(payload);
+ };
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -105,30 +113,28 @@ export default function PostForm({
         )}
       </div>
 
-      {/* CONTENT */}
-      <div>
-        <label className="block text-sm font-medium text-ink-700 mb-1.5">
-          Nội dung <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          {...register("content")}
-          rows={14}
-          placeholder="Viết nội dung bài viết của bạn..."
-          className={`input-field resize-none font-body leading-relaxed ${
-            errors.content ? "input-error" : ""
-          }`}
-        />
-        <div className="flex justify-between mt-1">
-          {errors.content ? (
-            <p className="text-xs text-red-500">{errors.content.message}</p>
-          ) : (
-            <span />
-          )}
-          <p className="text-xs text-ink-400">
-            {contentValue?.length || 0} ký tự
-          </p>
-        </div>
-      </div>
+ {/* CONTENT */}
+ <div>
+ <label className="block text-sm font-medium text-ink-700 mb-1.5">
+ Nội dung <span className="text-red-500">*</span>
+ </label>
+ <RichTextEditor
+ value={content}
+ onChange={setContent}
+ placeholder="Viết nội dung bài viết của bạn..."
+ />
+ <input type="hidden" {...register("content")} />
+ <div className="flex justify-between mt-1">
+ {errors.content ? (
+ <p className="text-xs text-red-500">{errors.content.message}</p>
+ ) : (
+ <span />
+ )}
+ <p className="text-xs text-ink-400">
+ {content.replace(/<[^>]+>/g, "").length} ký tự
+ </p>
+ </div>
+ </div>
 
       {/* TAGS (optional) */}
       <div>
