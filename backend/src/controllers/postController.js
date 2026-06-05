@@ -192,16 +192,8 @@ const toggleLike = async (req, res, next) => {
 };
 
 const uploadCoverImage = async (req, res, next) => {
-  try {
-    console.log("--- uploadCoverImage DEBUG ---");
-    console.log("Content-Type:", req.headers["content-type"]);
-    console.log("req.file:", req.file);
-    console.log("req.body:", req.body);
-    console.log("req.user?._id:", req.user?._id);
-    console.log("req.params.id:", req.params.id);
-    console.log("--------------------------------");
-
-    if (!req.file) {
+ try {
+ if (!req.file) {
       return res
         .status(400)
         .json({ success: false, message: "Vui lòng chọn một file ảnh" });
