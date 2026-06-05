@@ -54,14 +54,13 @@ export default function PostCard({ post }) {
 
       {/* Footer: Author + Stats */}
       <div className="flex items-center justify-between pt-2 border-t border-ink-100">
-        {/* Author */}
-        <div className="flex items-center gap-1.5 text-xs text-ink-500">
-          <User size={13} />
-          <span className="font-medium text-ink-700">
-            {/* TODO: Backend có thể trả author.username thay vì flat string */}
-            {post.author?.username || post.author || "Ẩn danh"}
-          </span>
-        </div>
+ {/* Author */}
+ <div className="flex items-center gap-1.5 text-xs text-ink-500">
+ <User size={13} />
+ <span className="font-medium text-ink-700">
+ {post.author?.username || post.author || "Ẩn danh"}
+ </span>
+ </div>
 
         {/* Stats */}
         <div className="flex items-center gap-3">
