@@ -1,5 +1,6 @@
 const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
+const { emitCommunityStats } = require("../utils/communityStats");
 const {
  uploadToCloudinary,
  deleteFromCloudinary,
@@ -120,26 +121,29 @@ const getPostById = async (req, res, next) => {
 };
 
 const createPost = async (req, res, next) => {
-  try {
-    const { title, content, summary, category, coverImage, tags } = req.body;
-    const post = await Post.create({
-      title,
-      content: sanitizeContent(content),
-      summary,
-      category,
-      coverImage,
-      tags,
-      author: req.user._id,
-    });
+ try {
+ const { title, content, summary, category, coverImage, tags } = req.body;
+ console.log("[createPost] payload:", { title, contentLen: content?.length, category, tags });
+ const post = await Post.create({
+ title,
+ content: sanitizeContent(content),
+ summary,
+ category,
+ coverImage,
+ tags,
+ author: req.user._id,
+ });
 
-    await post.populate("author", "username avatar");
+ await post.populate("author", "username avatar");
 
-    emitCommunityStats();
+ emitCommunityStats();
 
-    res.status(201).json({ success: true, post });
-  } catch (error) {
-    next(error);
-  }
+ res.status(201).json({ success: true, post });
+ } catch (error) {
+ console.error("[createPost] ERROR:", error.message);
+ console.error("[createPost] stack:", error.stack);
+ next(error);
+ }
 };
 
 const updatePost = async (req, res, next) => {
