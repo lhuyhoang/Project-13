@@ -65,7 +65,7 @@ const postSchema = new mongoose.Schema(
 
 // Virtual để đếm số lượng like
 postSchema.virtual("likeCount").get(function () {
-  return this.likes.length;
+ return (this.likes || []).length;
 });
 
 // Tối ưu tìm kiếm theo title, category và tag

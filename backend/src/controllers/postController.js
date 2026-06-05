@@ -1,5 +1,9 @@
 const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
+const {
+ uploadToCloudinary,
+ deleteFromCloudinary,
+} = require("../config/cloudinary");
 
 const sanitizeContent = (html) =>
   sanitizeHtml(html || "", {
@@ -232,44 +236,44 @@ const toggleLike = async (req, res, next) => {
 };
 
 const uploadCoverImage = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Vui lòng chọn một file ảnh" });
-    }
+ try {
+ if (!req.file) {
+ return res
+ .status(400)
+ .json({ success: false, message: "Vui lòng chọn một file ảnh" });
+ }
 
-    const post = await Post.findById(req.params.id);
-    if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Bài viết không tồn tại" });
-    }
-    if (post.author.toString() !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "Bạn không có quyền sửa bài viết này",
-      });
-    }
+ const post = await Post.findById(req.params.id);
+ if (!post) {
+ return res
+ .status(404)
+ .json({ success: false, message: "Bài viết không tồn tại" });
+ }
+ if (post.author.toString() !== req.user._id.toString()) {
+ return res.status(403).json({
+ success: false,
+ message: "Bạn không có quyền sửa bài viết này",
+ });
+ }
 
-    // Xóa ảnh bìa cũ nếu có (local upload)
-    if (post.coverImage && post.coverImage.startsWith("/uploads/")) {
-      const oldPath = path.join(__dirname, "../../", post.coverImage);
-      if (fs.existsSync(oldPath)) {
-        try {
-          fs.unlinkSync(oldPath);
-        } catch (e) {}
-      }
-    }
+ // Xoá ảnh bìa cũ trên Cloudinary (nếu có)
+ if (post.coverImage) {
+ await deleteFromCloudinary(post.coverImage);
+ }
 
-    const coverUrl = `/uploads/covers/${req.file.filename}`;
-    post.coverImage = coverUrl;
-    await post.save();
+ // Upload buffer lên Cloudinary
+ const result = await uploadToCloudinary(req.file.buffer, "blogviet/covers", {
+ transformation: [{ width: 1200, height: 600, crop: "fill" }],
+ });
 
-    res.json({ success: true, coverImage: coverUrl, post });
-  } catch (error) {
-    next(error);
-  }
+ const coverUrl = result.secure_url;
+ post.coverImage = coverUrl;
+ await post.save();
+
+ res.json({ success: true, coverImage: coverUrl, post });
+ } catch (error) {
+ next(error);
+ }
 };
 
 module.exports = {

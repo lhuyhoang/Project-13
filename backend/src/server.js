@@ -35,19 +35,17 @@ app.use("/api/admin", adminRoutes);
 app.get("/api/health", (req, res) => res.json({ status: "OK" }));
 
 app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    return res.status(400).json({
-      success: false,
-      message:
-        err.code === "LIMIT_FILE_SIZE"
-          ? "File quá lớn. Kích thước tối đa là 2MB."
-          : `Lỗi upload: ${err.message}`,
-    });
-  }
-  if (err) {
-    return res.status(400).json({ success: false, message: err.message });
-  }
-  next();
+ if (err instanceof multer.MulterError) {
+ return res.status(400).json({
+ success: false,
+ message:
+ err.code === "LIMIT_FILE_SIZE"
+ ? "File quá lớn. Kích thước tối đa là 2MB."
+ : `Lỗi upload: ${err.message}`,
+ });
+ }
+ // Cho các error khác đi tiếp tới errorHandler cuối
+ next(err);
 });
 
 app.use(errorHandler);

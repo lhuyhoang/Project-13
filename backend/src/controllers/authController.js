@@ -1,7 +1,10 @@
 const User = require("../models/User");
 const generateToken = require("../middleware/generateToken");
 const { emitCommunityStats } = require("../utils/communityStats");
-const path = require("path");
+const {
+ uploadToCloudinary,
+ deleteFromCloudinary,
+} = require("../config/cloudinary");
 
 const formatUser = (user) => ({
   _id: user._id,
@@ -138,36 +141,34 @@ const changePassword = async (req, res, next) => {
 };
 
 const updateAvatar = async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Vui lòng chọn một file ảnh" });
-    }
+ try {
+ if (!req.file) {
+ return res
+ .status(400)
+ .json({ success: false, message: "Vui lòng chọn một file ảnh" });
+ }
 
-    const oldUser = await User.findById(req.user._id);
-    if (oldUser.avatar && oldUser.avatar.startsWith("/uploads/")) {
-      const fs = require("fs");
-      const oldPath = path.join(__dirname, "../../", oldUser.avatar);
-      if (fs.existsSync(oldPath)) {
-        try {
-          fs.unlinkSync(oldPath);
-        } catch (e) {
-          /* ignore */
-        }
-      }
-    }
+ const oldUser = await User.findById(req.user._id);
+ if (oldUser.avatar) {
+ // Xoá avatar cũ trên Cloudinary (nếu là URL Cloudinary)
+ await deleteFromCloudinary(oldUser.avatar);
+ }
 
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { avatar: avatarUrl },
-      { new: true },
-    );
-    res.json({ success: true, user: formatUser(user) });
-  } catch (error) {
-    next(error);
-  }
+ // Upload buffer lên Cloudinary, folder "blogviet/avatars"
+ const result = await uploadToCloudinary(req.file.buffer, "blogviet/avatars", {
+ transformation: [{ width: 400, height: 400, crop: "fill", gravity: "auto" }],
+ });
+
+ const avatarUrl = result.secure_url;
+ const user = await User.findByIdAndUpdate(
+ req.user._id,
+ { avatar: avatarUrl },
+ { new: true },
+ );
+ res.json({ success: true, user: formatUser(user) });
+ } catch (error) {
+ next(error);
+ }
 };
 
 module.exports = {
