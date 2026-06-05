@@ -2,14 +2,17 @@ const { body, validationResult } = require("express-validator");
 
 // Xử lý kết quả validation
 const validate = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      message: errors.array().map((e) => ({ field: e.path, message: e.msg })),
-    });
-  }
-  next();
+ const errors = validationResult(req);
+ if (!errors.isEmpty()) {
+ return res.status(400).json({
+ success: false,
+ message: errors
+ .array()
+ .map((e) => `${e.path}: ${e.msg}`)
+ .join("; "),
+ });
+ }
+ next();
 };
 
 // Trình xác thực
