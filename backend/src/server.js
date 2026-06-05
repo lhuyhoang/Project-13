@@ -23,7 +23,26 @@ if (!fs.existsSync(uploadsDir)) {
 connectDB();
 require("./utils/seedAdmin")();
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+// CORS — chấp nhận nhiều domain (production + Vercel preview + dev)
+const allowedOrigins = [
+ process.env.CLIENT_URL,
+ "http://localhost:5173",
+ /^https:\/\/blogviet.*\.vercel\.app$/, // mọi URL Vercel (production + preview)
+].filter(Boolean);
+
+app.use(
+ cors({
+ origin: (origin, callback) => {
+ // Cho phép request không có origin (vd Postman, curl, server-to-server)
+ if (!origin) return callback(null, true);
+ const ok = allowedOrigins.some((o) =>
+ o instanceof RegExp ? o.test(origin) : o === origin
+ );
+ callback(ok ? null : new Error(`CORS blocked: ${origin}`), ok);
+ },
+ credentials: true,
+ })
+);
 app.use(express.json());
 app.use("/uploads", express.static(uploadsDir));
 app.use("/api/auth", authRoutes);
