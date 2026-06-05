@@ -4,12 +4,13 @@ const { emitCommunityStats } = require("../utils/communityStats");
 const path = require("path");
 
 const formatUser = (user) => ({
-  _id: user._id,
-  username: user.username,
-  email: user.email,
-  avatar: user.avatar,
-  bio: user.bio,
-  createdAt: user.createdAt,
+ _id: user._id,
+ username: user.username,
+ email: user.email,
+ avatar: user.avatar,
+ bio: user.bio,
+ role: user.role,
+ createdAt: user.createdAt,
 });
 
 const register = async (req, res, next) => {

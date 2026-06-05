@@ -53,11 +53,16 @@ const postValidation = [
     .withMessage("Tiêu đề không được để trống")
     .isLength({ min: 5, max: 150 })
     .withMessage("Tiêu đề phải có từ 5 đến 150 ký tự"),
-  body("content")
-    .notEmpty()
-    .withMessage("Nội dung không được để trống")
-    .isLength({ min: 20 })
-    .withMessage("Nội dung phải có ít nhất 20 ký tự"),
+ body("content")
+ .notEmpty()
+ .withMessage("Nội dung không được để trống")
+ .custom((value) => {
+ const plain = String(value || "").replace(/<[^>]+>/g, "").trim();
+ if (plain.length < 20) {
+ throw new Error("Nội dung phải có ít nhất 20 ký tự (không tính thẻ HTML)");
+ }
+ return true;
+ }),
   body("category")
     .notEmpty()
     .withMessage("Danh mục không được để trống")

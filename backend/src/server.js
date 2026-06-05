@@ -11,6 +11,7 @@ const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/posts");
 const commentRoutes = require("./routes/comments");
 const communityRoutes = require("./routes/community");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 
@@ -20,6 +21,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 connectDB();
+require("./utils/seedAdmin")();
 
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use(express.json());
@@ -28,6 +30,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/community", communityRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "OK" }));
 
