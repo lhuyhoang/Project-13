@@ -1,16 +1,15 @@
 const User = require("../models/User");
-const Post = require("../models/Post");
-const Comment = require("../models/Comment");
 const generateToken = require("../middleware/generateToken");
-const { getIO } = require("../socket");
+const { emitCommunityStats } = require("../utils/communityStats");
 const path = require("path");
 
 const formatUser = (user) => ({
- _id: user._id,
- username: user.username,
- email: user.email,
- avatar: user.avatar,
- bio: user.bio,
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  avatar: user.avatar,
+  bio: user.bio,
+  createdAt: user.createdAt,
 });
 
 const register = async (req, res, next) => {
@@ -27,21 +26,13 @@ const register = async (req, res, next) => {
     const user = await User.create({ username, email, password });
     const token = generateToken(user._id);
 
-    // emit updated community stats
-    try {
-      const users = await User.countDocuments();
-      const posts = await Post.countDocuments();
-      const comments = await Comment.countDocuments();
-      getIO().emit("community:update", { users, posts, comments });
-    } catch (e) {
-      // ignore
-    }
+    emitCommunityStats();
 
- res.status(201).json({
- success: true,
- token,
- user: formatUser(user),
- });
+    res.status(201).json({
+      success: true,
+      token,
+      user: formatUser(user),
+    });
   } catch (error) {
     next(error);
   }
@@ -65,11 +56,11 @@ const login = async (req, res, next) => {
         .json({ success: false, message: "Email hoặc mật khẩu không đúng" });
     }
     const token = generateToken(user._id);
- res.json({
- success: true,
- token,
- user: formatUser(user),
- });
+    res.json({
+      success: true,
+      token,
+      user: formatUser(user),
+    });
   } catch (error) {
     next(error);
   }
@@ -93,20 +84,27 @@ const updateProfile = async (req, res, next) => {
     if (username === undefined && bio === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'Không có dữ liệu cập nhật',
+        message: "Không có dữ liệu cập nhật",
       });
     }
 
     if (username !== undefined) {
-      const existing = await User.findOne({ username, _id: { $ne: req.user._id } });
+      const existing = await User.findOne({
+        username,
+        _id: { $ne: req.user._id },
+      });
       if (existing) {
         return res.status(400).json({
           success: false,
-          message: 'Username đã được sử dụng',
+          message: "Username đã được sử dụng",
         });
       }
     }
-    const user = await User.findByIdAndUpdate(req.user._id, { username, bio }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { username, bio },
+      { new: true },
+    );
     res.json({ success: true, user: formatUser(user) });
   } catch (error) {
     next(error);
@@ -116,19 +114,23 @@ const updateProfile = async (req, res, next) => {
 const changePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user._id).select('+password');
+    const user = await User.findById(req.user._id).select("+password");
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Người dùng không tồn tại" });
     }
 
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Mật khẩu hiện tại không chính xác" });
     }
 
     user.password = newPassword;
     await user.save();
-    res.json({ success: true, message: 'Đổi mật khẩu thành công' });
+    res.json({ success: true, message: "Đổi mật khẩu thành công" });
   } catch (error) {
     next(error);
   }
@@ -136,21 +138,38 @@ const changePassword = async (req, res, next) => {
 
 const updateAvatar = async (req, res, next) => {
   try {
+    console.log("--- updateAvatar DEBUG ---");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("req.file:", req.file);
+    console.log("req.body:", req.body);
+    console.log("req.user._id:", req.user?._id);
+    console.log("---------------------------");
+
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Vui lòng chọn một file ảnh' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Vui lòng chọn một file ảnh" });
     }
 
     const oldUser = await User.findById(req.user._id);
-    if (oldUser.avatar && oldUser.avatar.startsWith('/uploads/')) {
-      const fs = require('fs');
-      const oldPath = path.join(__dirname, '../../', oldUser.avatar);
+    if (oldUser.avatar && oldUser.avatar.startsWith("/uploads/")) {
+      const fs = require("fs");
+      const oldPath = path.join(__dirname, "../../", oldUser.avatar);
       if (fs.existsSync(oldPath)) {
-        try { fs.unlinkSync(oldPath); } catch (e) { /* ignore */ }
+        try {
+          fs.unlinkSync(oldPath);
+        } catch (e) {
+          /* ignore */
+        }
       }
     }
 
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatarUrl }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar: avatarUrl },
+      { new: true },
+    );
     res.json({ success: true, user: formatUser(user) });
   } catch (error) {
     next(error);
@@ -163,5 +182,5 @@ module.exports = {
   getMe,
   updateProfile,
   changePassword,
-  updateAvatar
+  updateAvatar,
 };

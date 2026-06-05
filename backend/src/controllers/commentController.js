@@ -1,5 +1,6 @@
 const Comment = require("../models/Comment");
 const Post = require("../models/Post");
+const { emitCommunityStats } = require("../utils/communityStats");
 
 const getComments = async (req, res, next) => {
   try {
@@ -30,17 +31,8 @@ const addComment = async (req, res, next) => {
 
     await comment.populate("author", "username avatar");
 
-    // emit updated community stats
-    try {
-      const { getIO } = require("../socket");
-      const User = require("../models/User");
-      const Post = require("../models/Post");
-      const Comment = require("../models/Comment");
-      const users = await User.countDocuments();
-      const posts = await Post.countDocuments();
-      const comments = await Comment.countDocuments();
-      getIO().emit("community:update", { users, posts, comments });
-    } catch (e) {}
+    // Emit realtime community stats
+    emitCommunityStats();
 
     res.status(201).json({ success: true, comment });
   } catch (error) {
@@ -55,17 +47,16 @@ const deleteComment = async (req, res, next) => {
       "author",
     );
     if (!comment) {
-      return (
-        res.status(404),
-        json({ success: false, message: "Bình luận không tồn tại" })
-      );
+      return res.status(404).json({
+        success: false,
+        message: "Bình luận không tồn tại",
+      });
     }
 
-    const isCommentAuthor =
-      (comment.author.toString() === req.user._id.toString()) ===
-      req.user._id.toString();
-    const isPostAuthor =
-      commnet.post.author.toString() === req.user._id.toString();
+    // Đồng bộ kiểu dữ liệu trước khi so sánh
+    const userId = req.user._id.toString();
+    const isCommentAuthor = comment.author.toString() === userId;
+    const isPostAuthor = comment.post.author.toString() === userId;
 
     if (!isCommentAuthor && !isPostAuthor) {
       return res.status(403).json({
@@ -75,6 +66,10 @@ const deleteComment = async (req, res, next) => {
     }
 
     await comment.deleteOne();
+
+    // Emit realtime community stats
+    emitCommunityStats();
+
     res.json({ success: true, message: "Bình luận đã được xóa" });
   } catch (error) {
     next(error);
