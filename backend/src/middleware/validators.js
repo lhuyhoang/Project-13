@@ -41,8 +41,8 @@ const commentValidation = [
 ];
 
 module.exports = {
-    registerValidation,
-    loginValidation,
-    postValidation,
-    commentValidation,
+    registerValidator: registerValidation,
+    loginValidator: loginValidation,
+    postValidator: postValidation,
+    commentValidator: commentValidation,
 };
