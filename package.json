@@ -1,0 +1,12 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for web project",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "start:backend": "node backend/src/server.js",
+    "start:frontend": "echo \"Start frontend manually\""
+  },
+  "license": "MIT"
+}
