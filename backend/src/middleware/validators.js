@@ -40,9 +40,32 @@ const commentValidation = [
     validate,
 ];
 
+const updateProfileValidation = [
+    body('username')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 30 }).withMessage('Username phải có từ 3 đến 30 ký tự'),
+    body('email')
+    .optional()
+    .isLength({ max: 200 }).withMessage('Email phải có tối đa 200 ký tự'),
+    validate,
+];
+
+const changePasswordValidation = [
+    body('currentPassword').notEmpty().withMessage('Mật khẩu hiện tại không được để trống'),
+    body('newPassword')
+    .notEmpty().withMessage('Mật khẩu mới không được để trống')
+    .isLength({ min: 6 }).withMessage('Mật khẩu mới phải có ít nhất 6 ký tự')
+    .custom((value, { req }) => value !== req.body.currentPassword)
+    .withMessage('Mật khẩu mới phải khác mật khẩu hiện tại'),
+    validate,
+]
+
 module.exports = {
     registerValidator: registerValidation,
     loginValidator: loginValidation,
     postValidator: postValidation,
     commentValidator: commentValidation,
+    updateProfileValidator: updateProfileValidation,
+    changePasswordValidator: changePasswordValidation,
 };

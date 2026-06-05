@@ -89,6 +89,32 @@ const getMe = async (req, res, next) => {
   }
 };
 
+const updateProfile = async (req, res, next) => {
+  const { username, bio } = req.body;
+  const user = await User.findByIdAndUpdate(req.user._id, { username, bio }, { new: true, runValidators: true });
+  res.json({ success: true, user });
+};
+const changePassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id).select('+password');
+  const isMath = await user.comparePassword(currentPassword);
+  if (!isMatch) return res.status(400).json({ message: 'Mật khẩu hiện tại không chính xác' });
+  user.password = newPassword;
+  await user.save();
+  res.json({ success: true, message: 'Đổi mật khẩu thành công' });
+};
+
+const updateAvatar = async (req, res, next) => {
+  // req.file được multer xử lý
+  const avatarUrl = req.file.path; // Cloudinary URL hoặc local path
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: avatarUrl },
+    { new: true }
+  );
+  res.json({ success: true, user });
+};
+
 module.exports = {
   register,
   login,
