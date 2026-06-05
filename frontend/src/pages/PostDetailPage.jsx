@@ -167,14 +167,10 @@ export default function PostDetailPage() {
           </span>
         </div>
 
-        {/* CONTENT */}
-        {/*
-          TODO: Nếu content là Markdown, dùng thư viện như react-markdown để render
-          Hiện tại render plain text với white-space preserved
-        */}
-        <div
-          className="prose prose-ink max-w-none font-body leading-8 text-ink-800
-                        text-base whitespace-pre-line"
+ {/* CONTENT */}
+ <div
+ className="prose prose-ink max-w-none font-body leading-8 text-ink-800
+ text-base whitespace-pre-line"
         >
           {post.content}
         </div>
