@@ -29,17 +29,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
- bio: {
- type: String,
- maxlength: [200, "Tiểu sử không được vượt quá 200 ký tự"],
- default: "",
- },
- role: {
- type: String,
- enum: ["user", "admin"],
- default: "user",
- },
- },
+    bio: {
+      type: String,
+      maxlength: [200, "Tiểu sử không được vượt quá 200 ký tự"],
+      default: "",
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+  },
   { timestamps: true },
 );
 

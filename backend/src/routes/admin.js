@@ -2,14 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { protect, requireAdmin } = require("../middleware/auth");
 const {
- getStats,
- getAllUsers,
- updateUserRole,
- deleteUser,
- getAllPosts,
- adminDeletePost,
- getAllComments,
- adminDeleteComment,
+  getStats,
+  getAllUsers,
+  updateUserRole,
+  deleteUser,
+  getAllPosts,
+  adminDeletePost,
+  getAllComments,
+  adminDeleteComment,
 } = require("../controllers/adminController");
 
 router.use(protect, requireAdmin);

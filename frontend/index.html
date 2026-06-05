@@ -2,22 +2,43 @@
 <html lang="vi">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BlogViet – Nơi chia sẻ tri thức</title>
+ <meta charset="UTF-8" />
+ <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>BlogViet – Nơi chia sẻ tri thức</title>
 
-  <!-- Google Fonts: Playfair Display + DM Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-    rel="stylesheet" />
+ <!-- Theme bootstrap: apply dark class trước khi CSS load để tránh flash -->
+ <script>
+ (function () {
+ try {
+ var raw = localStorage.getItem('theme-storage');
+ var theme = 'light';
+ if (raw) {
+ var parsed = JSON.parse(raw);
+ if (parsed && parsed.state && parsed.state.theme === 'dark') {
+ theme = 'dark';
+ }
+ }
+ if (theme === 'dark') {
+ document.documentElement.classList.add('dark');
+ }
+ } catch (e) {
+ /* ignore */
+ }
+ })();
+ </script>
+
+ <!-- Google Fonts: Playfair Display + DM Sans -->
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link
+ href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+ rel="stylesheet" />
 </head>
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
+<body class="bg-ink-50 dark:bg-ink-950">
+ <div id="root"></div>
+ <script type="module" src="/src/main.jsx"></script>
 </body>
 
 </html>

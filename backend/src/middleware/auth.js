@@ -24,24 +24,24 @@ const protect = async (req, res, next) => {
       });
     }
 
- req.user = user;
- return next();
- } catch (error) {
- return res.status(401).json({
- success: false,
- message: "Token không hợp lệ",
- });
- }
+    req.user = user;
+    return next();
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Token không hợp lệ",
+    });
+  }
 };
 
 const requireAdmin = (req, res, next) => {
- if (req.user && req.user.role === "admin") {
- return next();
- }
- return res.status(403).json({
- success: false,
- message: "Truy cập bị từ chối — yêu cầu quyền admin",
- });
+  if (req.user && req.user.role === "admin") {
+    return next();
+  }
+  return res.status(403).json({
+    success: false,
+    message: "Truy cập bị từ chối — yêu cầu quyền admin",
+  });
 };
 
 module.exports = { protect, requireAdmin };

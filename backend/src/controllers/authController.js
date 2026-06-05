@@ -4,13 +4,13 @@ const { emitCommunityStats } = require("../utils/communityStats");
 const path = require("path");
 
 const formatUser = (user) => ({
- _id: user._id,
- username: user.username,
- email: user.email,
- avatar: user.avatar,
- bio: user.bio,
- role: user.role,
- createdAt: user.createdAt,
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  avatar: user.avatar,
+  bio: user.bio,
+  role: user.role,
+  createdAt: user.createdAt,
 });
 
 const register = async (req, res, next) => {
@@ -138,10 +138,10 @@ const changePassword = async (req, res, next) => {
 };
 
 const updateAvatar = async (req, res, next) => {
- try {
- if (!req.file) {
- return res
- .status(400)
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
         .json({ success: false, message: "Vui lòng chọn một file ảnh" });
     }
 

@@ -1,7 +1,9 @@
+import { useLayoutEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/common/Navbar";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import AdminRoute from "./components/common/AdminRoute";
+import useThemeStore from "./stores/useThemeStore";
 
 import HomePage from "./pages/HomePage";
 import PostDetailPage from "./pages/PostDetailPage";
@@ -15,19 +17,28 @@ import NotFoundPage from "./pages/NotFoundPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 
 export default function App() {
-  return (
-    <div className="min-h-screen bg-ink-50 dark:bg-ink-950 transition-colors">
-      {/* Navbar cố định ở trên cùng */}
-      <Navbar />
+ const theme = useThemeStore((s) => s.theme);
 
-      {/* Main content – padding-top để không bị Navbar che */}
-      <main className="pt-16">
-        <Routes>
-          {/* ── PUBLIC ROUTES ── */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/posts/:id" element={<PostDetailPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+ useLayoutEffect(() => {
+ const root = document.documentElement;
+ if (theme === "dark") {
+ root.classList.add("dark");
+ } else {
+ root.classList.remove("dark");
+ }
+ }, [theme]);
+
+ return (
+ <div className="min-h-screen bg-ink-50 dark:bg-ink-950 transition-colors duration-300">
+ <Navbar />
+
+ <main className="pt-16">
+ <Routes>
+ {/* ── PUBLIC ROUTES ── */}
+ <Route path="/" element={<HomePage />} />
+ <Route path="/posts/:id" element={<PostDetailPage />} />
+ <Route path="/login" element={<LoginPage />} />
+ <Route path="/register" element={<RegisterPage />} />
 
  {/* ── PROTECTED ROUTES ── */}
  {/*
@@ -51,11 +62,11 @@ export default function App() {
  }
  />
 
-          {/* ── FALLBACK ── */}
-          <Route path="/404" element={<NotFoundPage />} />
-          <Route path="*" element={<Navigate to="/404" replace />} />
-        </Routes>
-      </main>
-    </div>
-  );
+ {/* ── FALLBACK ── */}
+ <Route path="/404" element={<NotFoundPage />} />
+ <Route path="*" element={<Navigate to="/404" replace />} />
+ </Routes>
+ </main>
+ </div>
+ );
 }

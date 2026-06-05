@@ -2,19 +2,36 @@ const Post = require("../models/Post");
 const sanitizeHtml = require("sanitize-html");
 
 const sanitizeContent = (html) =>
- sanitizeHtml(html || "", {
- allowedTags: [
- "p", "br", "strong", "em", "u", "s", "code", "pre",
- "h2", "h3", "ul", "ol", "li", "blockquote", "hr", "a",
- ],
- allowedAttributes: {
- a: ["href", "target", "rel"],
- },
- allowedSchemes: ["http", "https", "mailto"],
- transformTags: {
- a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer", target: "_blank" }),
- },
- });
+  sanitizeHtml(html || "", {
+    allowedTags: [
+      "p",
+      "br",
+      "strong",
+      "em",
+      "u",
+      "s",
+      "code",
+      "pre",
+      "h2",
+      "h3",
+      "ul",
+      "ol",
+      "li",
+      "blockquote",
+      "hr",
+      "a",
+    ],
+    allowedAttributes: {
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      a: sanitizeHtml.simpleTransform("a", {
+        rel: "noopener noreferrer",
+        target: "_blank",
+      }),
+    },
+  });
 
 const getMyPosts = async (req, res, next) => {
   try {
@@ -99,17 +116,17 @@ const getPostById = async (req, res, next) => {
 };
 
 const createPost = async (req, res, next) => {
- try {
- const { title, content, summary, category, coverImage, tags } = req.body;
- const post = await Post.create({
- title,
- content: sanitizeContent(content),
- summary,
- category,
- coverImage,
- tags,
- author: req.user._id,
- });
+  try {
+    const { title, content, summary, category, coverImage, tags } = req.body;
+    const post = await Post.create({
+      title,
+      content: sanitizeContent(content),
+      summary,
+      category,
+      coverImage,
+      tags,
+      author: req.user._id,
+    });
 
     await post.populate("author", "username avatar");
 
@@ -136,19 +153,19 @@ const updatePost = async (req, res, next) => {
       });
     }
 
- const { title, content, summary, category, coverImage, tags } = req.body;
- const updatedPost = await Post.findByIdAndUpdate(
- req.params.id,
- {
- title,
- content: content !== undefined ? sanitizeContent(content) : undefined,
- summary,
- category,
- coverImage,
- tags,
- },
- { new: true, runValidators: true },
- ).populate("author", "username avatar");
+    const { title, content, summary, category, coverImage, tags } = req.body;
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        content: content !== undefined ? sanitizeContent(content) : undefined,
+        summary,
+        category,
+        coverImage,
+        tags,
+      },
+      { new: true, runValidators: true },
+    ).populate("author", "username avatar");
 
     res.json({ success: true, post: updatedPost });
   } catch (error) {
@@ -215,8 +232,8 @@ const toggleLike = async (req, res, next) => {
 };
 
 const uploadCoverImage = async (req, res, next) => {
- try {
- if (!req.file) {
+  try {
+    if (!req.file) {
       return res
         .status(400)
         .json({ success: false, message: "Vui lòng chọn một file ảnh" });
@@ -229,12 +246,10 @@ const uploadCoverImage = async (req, res, next) => {
         .json({ success: false, message: "Bài viết không tồn tại" });
     }
     if (post.author.toString() !== req.user._id.toString()) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Bạn không có quyền sửa bài viết này",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Bạn không có quyền sửa bài viết này",
+      });
     }
 
     // Xóa ảnh bìa cũ nếu có (local upload)

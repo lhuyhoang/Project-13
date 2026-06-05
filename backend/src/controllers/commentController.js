@@ -3,9 +3,9 @@ const Post = require("../models/Post");
 const { emitCommunityStats } = require("../utils/communityStats");
 
 const sanitizeComment = (text) =>
- String(text || "")
- .replace(/<[^>]*>/g, "")
- .trim();
+  String(text || "")
+    .replace(/<[^>]*>/g, "")
+    .trim();
 
 const getComments = async (req, res, next) => {
   try {
@@ -28,11 +28,11 @@ const addComment = async (req, res, next) => {
         .json({ success: false, message: "Bài viết không tồn tại" });
     }
 
- const comment = await Comment.create({
- content: sanitizeComment(req.body.content),
- author: req.user._id,
- post: req.params.postId,
- });
+    const comment = await Comment.create({
+      content: sanitizeComment(req.body.content),
+      author: req.user._id,
+      post: req.params.postId,
+    });
 
     await comment.populate("author", "username avatar");
 

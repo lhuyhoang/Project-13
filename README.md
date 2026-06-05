@@ -1,8 +1,8 @@
 # BlogViet
 
-> Nền tảng blog full-stack xây dựng bằng **MERN stack** (MongoDB + Express + React + Node.js) với xác thực JWT, realtime qua Socket.io và giao diện responsive Tailwind CSS.
+> Nền tảng blog full-stack xây dựng bằng **MERN stack** (MongoDB + Express + React + Node.js) với xác thực JWT, rich text editor, dark mode, phân quyền admin, realtime qua Socket.io và giao diện responsive Tailwind CSS.
 
-Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết, bình luận, thả tim, phân trang, tìm kiếm, upload avatar & ảnh bìa, chỉnh sửa hồ sơ cá nhân
+Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết với TipTap rich text editor, bình luận, thả tim, phân trang, tìm kiếm, upload avatar & ảnh bìa, chỉnh sửa hồ sơ, dark/light mode, và **Admin Dashboard** quản lý toàn bộ hệ thống.
 
 ---
 
@@ -18,7 +18,6 @@ Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết, bình luận, th
 - [Cấu trúc thư mục](#cấu-trúc-thư-mục)
 - [Tài liệu liên quan](#tài-liệu-liên-quan)
 - [Roadmap](#roadmap)
-- [Tác giả](#tác-giả)
 
 ---
 
@@ -34,47 +33,68 @@ Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết, bình luận, th
 ### Bài viết
 
 - 📰 **CRUD bài viết** (tạo, xem, sửa, xóa)
+- ✍️ **Rich Text Editor** (TipTap) — định dạng văn bản: Bold, Italic, Headings, List, Quote, Code block, Link…
 - 🖼️ **Upload ảnh bìa** cho bài viết
 - ❤️ **Like / Unlike** bài viết
 - 💬 **Bình luận** (xóa nếu là tác giả comment hoặc chủ bài)
-- 🔍 **Tìm kiếm** theo tiêu đề
-- 🏷️ **Lọc theo danh mục**, phân trang
+- 🔍 **Tìm kiếm** theo tiêu đề, lọc theo danh mục, phân trang
 - 🏷️ **Tags** cho bài viết
 
-### Realtime & UX
+### Hệ thống & UX
 
-- 📊 **Cập nhật số liệu cộng đồng** realtime qua Socket.io
-- 🎨 **Modal composer** tạo bài (kiểu Facebook)
+- 🌗 **Dark / Light mode** — toggle ở Navbar, persist localStorage, chống FOUC khi refresh
+- 🎨 **Modal composer** tạo bài (kiểu Facebook) với TipTap editor
 - ✨ Animation chuyển trang mượt mà
 - 📱 **Responsive** trên mọi thiết bị
+- 🛡️ **Phân quyền** (user / admin)
+
+### Admin Dashboard (`/admin`)
+
+- 📊 **Thống kê** — tổng user, post, comment, lượt thích
+- 👥 **Quản lý người dùng** — tìm kiếm, đổi role (user ↔ admin), xóa (cascade post + comment)
+- 📝 **Quản lý bài viết** — tìm kiếm, xem, xóa (cascade comment)
+- 💬 **Quản lý bình luận** — tìm kiếm, xem post gốc, xóa
+
+### Realtime
+
+- 📊 **Cập nhật số liệu cộng đồng** qua Socket.io (`community:update`)
+
+### Bảo mật
+
+- 🧹 **HTML Sanitization** — `sanitize-html` strip XSS, giữ tag được phép cho content bài viết
+- 🔒 **JWT auth** + role-based middleware (`protect`, `requireAdmin`)
 
 ---
 
 ## Tech stack
 
 ### Backend
-| Thành phần | Công nghệ |
-|------------|-----------|
-| Runtime | Node.js 18+ |
-| Framework | Express 5 |
-| Database | MongoDB 6+ (Mongoose 9) |
-| Auth | JWT + bcryptjs |
-| Validation | express-validator |
-| Upload | Multer |
-| Realtime | Socket.io 4 |
+
+| Thành phần | Công nghệ               |
+| ---------- | ----------------------- |
+| Runtime    | Node.js 18+             |
+| Framework  | Express 5               |
+| Database   | MongoDB 6+ (Mongoose 9) |
+| Auth       | JWT + bcryptjs          |
+| Validation | express-validator       |
+| Upload     | Multer                  |
+| Realtime   | Socket.io 4             |
+| Sanitize   | sanitize-html           |
 
 ### Frontend
-| Thành phần | Công nghệ |
-|------------|-----------|
-| Framework | React 18 |
-| Build tool | Vite 5 |
-| Routing | React Router DOM 6 |
-| State | Zustand 4 (persist) |
-| HTTP | Axios 1.6 |
-| Form | React Hook Form 7 + Zod 3 |
-| Styling | Tailwind CSS 3 |
-| Icons | Lucide React |
-| Notification | React Hot Toast |
+
+| Thành phần   | Công nghệ                                |
+| ------------ | ---------------------------------------- |
+| Framework    | React 18                                 |
+| Build tool   | Vite 5                                   |
+| Routing      | React Router DOM 6                       |
+| State        | Zustand 4 (persist) — auth + theme       |
+| HTTP         | Axios 1.6                                |
+| Form         | React Hook Form 7 + Zod 3                |
+| Styling      | Tailwind CSS 3 (dark mode: `class`)      |
+| Rich Text    | TipTap (StarterKit + Link + Placeholder) |
+| Icons        | Lucide React                             |
+| Notification | React Hot Toast                          |
 
 ---
 
@@ -84,24 +104,26 @@ Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết, bình luận, th
 ┌────────────────────┐ HTTP/REST ┌────────────────────┐
 │ React (Vite) :5173 │ ◄──────► │ Express :5000 │
 │ - React Router │ │ - REST API │
-│ - Zustand store │ │ - JWT auth │
-│ - Axios client │ │ - Multer upload │
+│ - Zustand store │ │ - JWT auth + role │
+│ - TipTap RTE │ │ - Multer upload │
+│ - Dark mode │ │ - sanitize-html │
 │ └──── Socket.io ◄──────────────► Socket.io │
 └────────────────────┘ └─────────┬─────────┘
-│ │
-│ Mongoose │
-│ │
-┌────▼────────────────────┐
-│ MongoDB :27017 │
-│ - users │
-│ - posts │
-│ - comments │
-└───────────────────────┘
+ │ │
+ │ Mongoose │
+ │ │
+ ┌────▼────────────────────┐
+ │ MongoDB :27017 │
+ │ - users (+ role) │
+ │ - posts (HTML content) │
+ │ - comments │
+ └────────────────────────┘
 ```
 
 - **Frontend** gọi REST API qua Axios (kèm JWT trong header `Authorization`)
 - **Static files** (avatar, cover) serve qua `/uploads/...`
 - **Realtime**: Server emit `community:update` sau mỗi hành động tạo user/post/comment
+- **TipTap** output HTML → lưu vào `post.content` → render bằng `dangerouslySetInnerHTML` + `prose` class → sanitize ở backend
 
 ---
 
@@ -109,14 +131,14 @@ Dự án hỗ trợ đầy đủ tính năng: CRUD bài viết, bình luận, th
 
 Trước khi bắt đầu, đảm bảo máy bạn đã cài:
 
-| Phần mềm | Phiên bản | Kiểm tra |
-|----------|-----------|----------|
-| **Node.js** | >= 18 | `node -v` |
-| **npm** | >= 9 (đi kèm Node) | `npm -v` |
-| **MongoDB** | >= 6 (local) hoặc tài khoản Atlas | `mongosh` hoặc xem trên cloud |
-| **Git** | mới nhất | `git --version` |
+| Phần mềm    | Phiên bản                         | Kiểm tra        |
+| ----------- | --------------------------------- | --------------- |
+| **Node.js** | >= 18                             | `node -v`       |
+| **npm**     | >= 9 (đi kèm Node)                | `npm -v`        |
+| **MongoDB** | >= 6 (local) hoặc tài khoản Atlas | `mongosh`       |
+| **Git**     | mới nhất                          | `git --version` |
 
-> **MongoDB Atlas (miễn phí)**: Nếu không muốn cài MongoDB local, đăng ký tài khoản tại [mongodb.com/atlas](https://www.mongodb.com/atlas), tạo cluster free và lấy connection string.
+> **MongoDB Atlas (miễn phí)**: Nếu không muốn cài MongoDB local, đăng ký tại [mongodb.com/atlas](https://www.mongodb.com/atlas), tạo cluster free và lấy connection string.
 
 ---
 
@@ -129,57 +151,49 @@ git clone <repository-url>
 cd web
 ```
 
-### Bước 2 — Cài dependencies cho cả backend và frontend
+### Bước 2 — Cài dependencies
 
 ```bash
-# Backend
+# Terminal 1 — Backend
 cd backend
 npm install
 
-# Frontend (mở terminal mới hoặc quay lại root)
-cd ../frontend
+# Terminal 2 — Frontend
+cd frontend
 npm install
 ```
-
-> Hoặc cài song song bằng 2 terminal riêng để tiết kiệm thời gian.
 
 ### Bước 3 — Cấu hình biến môi trường
 
-#### Backend — tạo file `backend/.env`
+#### Backend — `backend/.env`
 
-```bash
-cd backend
-# Tạo file .env (chưa có file mẫu .env.example, tự tạo)
-```
-
-Nội dung:
+Tạo file (copy từ `.env.example` nếu có):
 
 ```env
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/web_db
 JWT_SECRET=your_secret_key_change_me_in_production
 NODE_ENV=development
+
+# Auto-seed admin (optional — đã có default)
+ADMIN_EMAIL=admin@blogviet.vn
+ADMIN_PASSWORD=admin123
+ADMIN_USERNAME=admin
 ```
 
-> 💡 **Generate JWT_SECRET mạnh** (cho production):
+> 💡 **Generate JWT_SECRET mạnh** (production):
+>
 > ```bash
 > node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 > ```
 
-Nếu dùng **MongoDB Atlas**, thay `MONGO_URI`:
+Nếu dùng **MongoDB Atlas**:
 
 ```env
 MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/web_db?retryWrites=true&w=majority
 ```
 
-#### Frontend — tạo file `frontend/.env`
-
-```bash
-cd frontend
-cp .env.example .env
-```
-
-Mặc định:
+#### Frontend — `frontend/.env`
 
 ```env
 VITE_API_URL=http://localhost:5000/api
@@ -191,7 +205,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ## Chạy dự án
 
-Bạn cần **2 terminal** chạy song song: 1 cho backend, 1 cho frontend.
+Bạn cần **2 terminal** chạy song song.
 
 ### Terminal 1 — Backend
 
@@ -200,17 +214,16 @@ cd backend
 npm run dev
 ```
 
-Server sẽ chạy ở **http://localhost:5000**.
-
 Output mong đợi:
 
 ```
 ◇ injected env (4) from .env
 Server running on port 5000
 MongoDB connected: localhost
+[seed] Default admin created — email: admin@blogviet.vn | password: admin123
 ```
 
-> Nếu lỗi `EADDRINUSE` → port 5000 đang bị chiếm. Đổi `PORT` trong `.env` hoặc tắt process cũ.
+> Admin mặc định tự động tạo lần đầu chạy server. Lần sau sẽ skip.
 
 ### Terminal 2 — Frontend
 
@@ -219,9 +232,7 @@ cd frontend
 npm run dev
 ```
 
-App sẽ chạy ở **http://localhost:5173**.
-
-Mở trình duyệt, truy cập [http://localhost:5173](http://localhost:5173) — bạn sẽ thấy trang chủ BlogViet. 🎉
+App chạy ở **http://localhost:5173**. Mở trình duyệt, truy cập — bạn sẽ thấy trang chủ BlogViet. 🎉
 
 ### Health check
 
@@ -236,7 +247,7 @@ curl http://localhost:5000/api/health
 # Frontend
 cd frontend
 npm run build
-# Output: dist/ — có thể serve qua Nginx, Vercel, Netlify...
+# Output: dist/ — serve qua Nginx, Vercel, Netlify...
 
 # Backend
 cd ../backend
@@ -247,7 +258,23 @@ npm start
 
 ## Tài khoản demo
 
-Sau khi hệ thống chạy, bạn có thể tự tạo tài khoản qua form đăng ký. Hoặc nếu muốn test nhanh, dùng bất kỳ email/password nào ≥ 6 ký tự.
+### Admin mặc định (auto-seed)
+
+| Email               | Mật khẩu   | Quyền |
+| ------------------- | ---------- | ----- |
+| `admin@blogviet.vn` | `admin123` | admin |
+
+> ⚠️ **Đổi mật khẩu admin trong production** qua `ADMIN_PASSWORD` env hoặc đăng nhập rồi đổi.
+
+### User thường
+
+Tự đăng ký qua form `/register`, hoặc tạo qua Postman. Mặc định role = `user`.
+
+### Test nhanh quyền admin
+
+1. Đăng nhập `admin@blogviet.vn` / `admin123`
+2. Navbar hiển thị link **🛡️ Admin**
+3. Click → `/admin` với 4 tab: Thống kê / Người dùng / Bài viết / Bình luận
 
 ---
 
@@ -255,58 +282,114 @@ Sau khi hệ thống chạy, bạn có thể tự tạo tài khoản qua form đ
 
 ```
 web/
-├── README.md # File này
+├── README.md
 ├── .gitignore
-├── package.json # Root package.json (monorepo metadata)
 │
 ├── backend/ # Node.js + Express API
-│ ├── README.md # Chi tiết API, models, env...
-│ ├── .env # Biến môi trường (KHÔNG commit)
+│ ├── README.md
+│ ├── .env
+│ ├── BlogViet-API.postman_collection.json
 │ ├── package.json
-│ ├── uploads/ # Thư mục chứa file upload
+│ ├── uploads/ # avatars/, covers/ — gitignored
 │ └── src/
-│ ├── server.js
+│ ├── server.js # Mount routes + Socket.io + seed
 │ ├── socket.js
-│ ├── config/ db.js
+│ ├── config/db.js
 │ ├── controllers/
+│ │ ├── authController.js
+│ │ ├── postController.js
+│ │ ├── commentController.js
+│ │ ├── communityController.js
+│ │ └── adminController.js
 │ ├── middleware/
+│ │ ├── auth.js # protect + requireAdmin
+│ │ ├── generateToken.js
+│ │ ├── validators.js
+│ │ ├── errorHandler.js
+│ │ ├── upload.js
+│ │ └── uploadCover.js
 │ ├── models/
-│ └── routes/
+│ │ ├── User.js # + role
+│ │ ├── Post.js
+│ │ └── Comment.js
+│ ├── routes/
+│ │ ├── auth.js
+│ │ ├── posts.js
+│ │ ├── comments.js
+│ │ ├── community.js
+│ │ └── admin.js
+│ └── utils/
+│ ├── communityStats.js # emit helper
+│ └── seedAdmin.js # auto-seed admin
 │
 └── frontend/ # React + Vite SPA
- ├── README.md # Chi tiết components, routes, design system
- ├── .env # Biến môi trường (KHÔNG commit)
+ ├── README.md
+ ├── .env
+ ├── index.html # + inline theme bootstrap
  ├── package.json
- ├── index.html
- ├── vite.config.js
- ├── tailwind.config.js
+ ├── tailwind.config.js # darkMode: 'class'
  └── src/
  ├── main.jsx
- ├── App.jsx
+ ├── App.jsx # useLayoutEffect apply theme
  ├── components/
  │ ├── common/
+ │ │ ├── Navbar.jsx # + ThemeToggle + Admin link
+ │ │ ├── ProtectedRoute.jsx
+ │ │ ├── AdminRoute.jsx
+ │ │ ├── ThemeToggle.jsx
+ │ │ ├── RichTextEditor.jsx # TipTap wrapper
+ │ │ ├── LoadingSpinner.jsx
+ │ │ ├── Pagination.jsx
+ │ │ ├── Avatar.jsx
+ │ │ └── AvatarUploader.jsx
  │ ├── posts/
+ │ │ ├── PostCard.jsx
+ │ │ ├── PostForm.jsx # + RichTextEditor
+ │ │ └── PostComposer.jsx # + RichTextEditor
  │ └── comments/
+ │ └── CommentSection.jsx
  ├── pages/
- ├── hooks/
+ │ ├── HomePage.jsx
+ │ ├── PostDetailPage.jsx
+ │ ├── LoginPage.jsx
+ │ ├── RegisterPage.jsx
+ │ ├── CreatePostPage.jsx
+ │ ├── EditPostPage.jsx
+ │ ├── ProfilePage.jsx
+ │ ├── EditProfilePage.jsx
+ │ ├── NotFoundPage.jsx
+ │ └── admin/ # Admin Dashboard
+ │ ├── AdminDashboardPage.jsx
+ │ ├── AdminStats.jsx
+ │ ├── AdminUsers.jsx
+ │ ├── AdminPosts.jsx
+ │ └── AdminComments.jsx
  ├── services/
+ │ ├── api.js
+ │ ├── authService.js
+ │ ├── postService.js
+ │ ├── commentService.js
+ │ └── adminService.js
  ├── stores/
+ │ ├── useAuthStore.js # user, token, isAdmin()
+ │ └── useThemeStore.js # theme, toggle, persist
  └── utils/
+ └── helpers.js # + getAvatarUrl
 ```
-
-Xem chi tiết từng phần:
-- [Backend README](backend/README.md) — API endpoints, models, error handling
-- [Frontend README](frontend/README.md) — Components, routing, state management
 
 ---
 
 ## Tài liệu liên quan
 
-- [Backend API documentation](backend/README.md)
-- [Frontend documentation](frontend/README.md)
+- [Backend API documentation](backend/README.md) — endpoints, models, error handling
+- [Frontend documentation](frontend/README.md) — components, routing, design system
+- [Postman collection](backend/BlogViet-API.postman_collection.json) — test API
 - [Express.js docs](https://expressjs.com/)
 - [React docs](https://react.dev/)
 - [MongoDB docs](https://www.mongodb.com/docs/)
 - [Tailwind CSS docs](https://tailwindcss.com/docs)
+- [TipTap docs](https://tiptap.dev/)
 - [Zustand](https://github.com/pmndrs/zustand)
 - [Socket.io](https://socket.io/docs/)
+
+---
